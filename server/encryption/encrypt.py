@@ -32,5 +32,3 @@ def decrypt_message(ciphertext, key, iv, tag):
     cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
     plaintext = cipher.decrypt_and_verify(ciphertext, tag)
     return plaintext.decode('utf-8')
-
-

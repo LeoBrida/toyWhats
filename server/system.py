@@ -65,27 +65,32 @@ def choose_user():
     for user in users_database:
         return user #corrigir
 
+def menu():
+    print("\n1. Cadastro")
+    print("2. Login")
+    print("3. Enviar mensagem")
+    print("4. Sair")
+    print("5. Listar usuários")
+    option = input("Escolha uma opção: ")
+
+    return option
 
 # Menu principal
 while True:
-    def menu():
-        print("\n1. Cadastro")
-        print("2. Login")
-        print("3. Enviar mensagem")
-        print("4. Sair")
-        option = input("Escolha uma opção: ")
+    option = menu()
 
-        if option == "1":
-            register_user()
-        elif option == "2":
-            login()
-        elif option == "3":
-            choose_user()
-        elif option == "3":
-            break
-        else:
-            print("Opção inválida. Tente novamente.")
-
+    if option == "1":
+        register_user()
+    elif option == "2":
+        login()
+    elif option == "3":
+        choose_user()
+    elif option == "4":
+        break
+    elif option == "5":
+        list_users_data()
+    else:
+        print("Opção inválida. Tente novamente.")
 
 
 
