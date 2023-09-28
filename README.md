@@ -3,17 +3,17 @@ Implementação de sistema que simula o funcionamento do Whatsapp, visando o apr
 
 Recursos necessários para a utilização e execução do sistema:
 
-Python 3.x
+##### Python 3.x
 
-Pycryptodome
-pip install pycryptodome
+##### Pycryptodome
+- pip install pycryptodome
 
-PyOTP
-pip install pyotp
-https://pyauth.github.io/pyotp/#
+##### PyOTP
+- pip install pyotp
+- link: https://pyauth.github.io/pyotp/#
 
-Hashlib
-https://docs.python.org/pt-br/3.10/library/hashlib.html
+##### Hashlib
+- link: https://docs.python.org/pt-br/3.10/library/hashlib.html
 
-Hmac
-https://docs.python.org/pt-br/3.10/library/hmac.html
+##### Hmac
+- link: https://docs.python.org/pt-br/3.10/library/hmac.html
