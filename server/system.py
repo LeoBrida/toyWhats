@@ -3,52 +3,91 @@ from authentication.auth import *
 from user_managment import User
 
 
-def register():
-    # um usuário novo deve se cadastrar com login, número do celular, e senha de acesso.
-    # Registro do usuário
+# Dicionário para armazenar os dados de usuário (simulado em memória)
+users_database = []
+
+def register_user():
+    login = input("Digite seu usuário: ")
+    phone_number = input("Digite seu número de celular: ")
+    password = input("Digite sua senha: ")
     salt = generate_salt()
-    key, iv = generate_aes_keys(salt, password)
-    user_data = { # puxar dos dados
-        "username": username,
-        "phone_number": phone_number,
-        "password_salt": salt,
-        "encryption_key": key,
-        "encryption_iv": iv
-    }
-    pass
+    password_scrypt = derive_key_scrypt(salt, password)
 
-def user_login():
-    # Sempre que o usuario entrar no sistema ele deve ser autenticado
-    #É preciso autenticar usuários usando login/senha e um segundo fator de autenticação (cada usuário deve ter um “secret key” diferente cadastrado para obter o segundo fator);
-    pass
+    user = User(login, phone_number, password_scrypt, salt)
 
-def users_list():
-    pass
+    for user in users_database:
+        if user.login == login:
+            print("Usuário já cadastrado com esse login")
+        elif user.phone_number == phone_number:
+            print("Usuário já cadastrado com esse telefone")
+        else:
+            users_database.append(user)
+            print("Usuário cadastrado com sucesso!")
 
 
-# Exemplo de uso:
+def login():
+    login = input("Digite seu login: ")
+    password = input("Digite sua senha: ")
 
-# Dados do usuário (simulação)
-username = "nome1"
-phone_number = "999223344"
-password = "senha1"
+    for u in users_database:
+        if u.login == login:
+            user = u
+        if pbkdf2_sha256.verify(password, usuario["senha_hash"]): # essa é uma função de uma outra lib, eu acho que temos que bater a senha com o scrypt
+            secret = generate_2fa_code(user.secret_key)
+            print(f"Bem-vindo, {usuario['nome']}!")
+        else:
+            print("Senha incorreta.")
+    else:
+        print("Usuário não encontrado.")
 
-# Mensagem a ser enviada
-message_to_send = "Olá, usuário2!"
+def list_users_data():
+    print("Login\t")
+    print("Celular\t")
+    print("Scrypt Senha\t")
+    print("Salt\n")
 
-# Simulação do envio da mensagem
-# Suponha que o destinatário seja "nome2" e você tenha acesso aos dados do usuário destinatário
+    for user in users_database:
+        print(f"{user.login}\t")
+        print(f"{user.phone}\t")
+        print(f"{user.password}\t")
+        print(f"{user.salt}\n")
 
-# Cifrar a mensagem
-ciphertext, nonce, tag = encrypt_message(message_to_send, user_data["encryption_key"], user_data["encryption_iv"])
+    voltar = input("Digite 0 (zero) para voltar")
+    if voltar == 0:
+        menu()
 
-# Armazenar a mensagem cifrada e outros dados relevantes (como nonce e tag) para entrega ao destinatário
+def choose_user():
+    print("Para enviar uma mensagem você precisa escolher um usuário")
+    for person in users_database:
+        print(f"{person.login}\n")
+    login = input("Escreva o nome do usuário para enviar uma mensagem:")
 
-# Simulação da recepção da mensagem pelo destinatário
-# Suponha que o destinatário seja "nome2" e você tenha acesso aos dados do usuário destinatário
+    for user in users_database:
+        return user #corrigir
 
-# Decifrar a mensagem
-plaintext = decrypt_message(ciphertext, user_data["encryption_key"], nonce, tag)
 
-# Exibir a mensagem decifrada
-print(f"Mensagem recebida: {plaintext}")
+# Menu principal
+while True:
+    def menu():
+        print("\n1. Cadastro")
+        print("2. Login")
+        print("3. Enviar mensagem")
+        print("4. Sair")
+        option = input("Escolha uma opção: ")
+
+        if option == "1":
+            register_user()
+        elif option == "2":
+            login()
+        elif option == "3":
+            choose_user()
+        elif option == "3":
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+
+
+
+
+
