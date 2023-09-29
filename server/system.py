@@ -6,6 +6,7 @@ from user_managment import User
 
 
 # ---------------------Dados de usuários (simulado em memória) ----------------
+global users_database
 users_database = []
 
 # ------------------------- Registro do usuário -------------------------------
@@ -18,13 +19,21 @@ def register_user():
 
     user = User(login, phone_number, password_scrypt, salt)
 
+    def addUserToDB(userToAdd: User):
+        users_database.append(userToAdd)
+        print("Usuário cadastrado com sucesso!")
+
+    if len(users_database) == 0:
+        addUserToDB(user)
+        return
+
     for user in users_database:
         if user.login == login:
             print("Usuário já cadastrado com esse login")
-        elif user.phone_number == phone_number:
+        elif user.phone == phone_number:
             print("Usuário já cadastrado com esse telefone")
         else:
-            users_database.append(user)
+            addUserToDB(user)
             print("Usuário cadastrado com sucesso!")
 
 # ------------------------- Login ------------------------------------
@@ -32,29 +41,34 @@ def login():
     login = input("Digite seu login: ")
     password = input("Digite sua senha: ")
 
-    for person in users_database:
-        if person.login == login:
-            user = person
+    global userToLogin #Não pode ser global, tem que ser local do método
+    userToLogin = User
 
-            # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-            salt_received_password = generate_salt()
-            scrypt_received_password = derive_key_scrypt(salt_received_password, password)
-            if user.password_scrypt == scrypt_received_password:
-                
-                # Segundo fator de autenticação, usar o TOTP
-                #secret_key -> getotp -> retorna numero (user e servidor)
-                #comparar numero gerado pelo usuario e pelo servidor, se for o mesmo, ta autenticado
-                user_secret = generate_2fa_code(user.secret_key)
-                server_secret = pass
-                
-                if user_secret == server_secret:
-                    print(f"Bem-vindo, {user.login}!")
-                else:
-                    print("Autenticação falhou!")
-            else:
-                print("Senha incorreta.")
-        else:
+    for c in range(len(users_database)):
+        person = users_database[c]
+
+        if person.login == login:
+            userToLogin = person
+        elif userToLogin == None and c == len(users_database):
             print("Usuário não encontrado.")
+
+    # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
+    # salt_received_password = generate_salt()      essa variável era assim. Mudei pq só assim as senhas batem. O salt precisa ser diferente nesse caso?
+    salt_received_password = userToLogin.salt
+    scrypt_received_password = derive_key_scrypt(salt_received_password, password)
+    if userToLogin.password == scrypt_received_password:
+        # Segundo fator de autenticação, usar o TOTP
+        #secret_key -> getotp -> retorna numero (user e servidor)
+        #comparar numero gerado pelo usuario e pelo servidor, se for o mesmo, ta autenticado
+        user_secret = generate_2fa_code(userToLogin.secret_key)
+        server_secret = generate_2fa_code(userToLogin.secret_key)
+        
+        if user_secret == server_secret:
+            print(f"Bem-vindo, {userToLogin.login}!")
+        else:
+            print("Autenticação falhou!")
+    else:
+        print("Senha incorreta.")
 
 def list_users_data():
     print("Login\t")
@@ -90,9 +104,18 @@ def menu():
     print("3. Enviar mensagem")
     print("4. Sair")
     print("5. Listar usuários")
+    print("6. Comando especial")
     option = input("Escolha uma opção: ")
 
     return option
+
+def showUsersData():
+    for user in users_database:
+        print("\n" + "login: " + user.login)
+        print("phone: " + user.phone)
+        print("password: " + str(user.password))
+        print("salt: " + str(user.salt))
+        print("secret_key: " + user.secret_key)
 
 # Menu principal
 while True:
@@ -108,6 +131,8 @@ while True:
         break
     elif option == "5":
         list_users_data()
+    elif option == "6":
+        showUsersData()
     else:
         print("Opção inválida. Tente novamente.")
 
