@@ -1,6 +1,6 @@
 from encryption.encrypt import *
 from authentication.auth import *
-from user_managment import User
+from toyWhats.server.objects.object_user import User
 
 # Secret_key do servidor
 
@@ -8,6 +8,10 @@ from user_managment import User
 # ---------------------Dados de usuários (simulado em memória) ----------------
 #global users_database # não precisa definir como global por que ela nao ta dentro de nenhuma função
 users_database = []
+loggedUser = None
+
+def setLoggedUser(user):
+    loggedUser = user
 
 # ------------------------- Registro do usuário -------------------------------
 def register_user():
@@ -17,24 +21,23 @@ def register_user():
     salt = generate_salt()
     password_scrypt = derive_key_scrypt(salt, password) # senha hasheada
 
-    user = User(login, phone_number, password_scrypt, salt)
+    userToAdd = User(login, phone_number, password_scrypt, salt)
+
+    hasEqualPhone = any(user.phone == phone_number for user in users_database)
+    hasEqualLogin = any(user.login == login for user in users_database)
 
     def addUserToDB(userToAdd: User):
         users_database.append(userToAdd)
         print("Usuário cadastrado com sucesso!")
 
     if len(users_database) == 0:
-        addUserToDB(user)
-        return
-
-    for user in users_database:
-        if user.login == login:
-            print("Usuário já cadastrado com esse login")
-        elif user.phone == phone_number:
-            print("Usuário já cadastrado com esse telefone")
-        else:
-            addUserToDB(user)
-            print("Usuário cadastrado com sucesso!")
+        addUserToDB(userToAdd)
+    elif hasEqualPhone:
+        print("Usuário já cadastrado com esse telefone")
+    elif hasEqualLogin:
+        print("Usuário já cadastrado com esse login")
+    else:
+        addUserToDB(userToAdd)
 
 # ------------------------- Login ------------------------------------
 def login():
@@ -57,6 +60,8 @@ def login():
 
                 if user_secret == server_secret:
                     print(f"\nBem-vindo, {userToLogin.login}!")
+                    global loggedUser
+                    loggedUser = userToLogin
                     #return # a partir daqui ele deve ir para o server_menu()
                 else:
                     print("\nAutenticação falhou!")
@@ -67,16 +72,20 @@ def login():
             print("\nUsuário não encontrado.")
 
 # ---------------------- Escolher o usuário --------------------------
-def choose_user():
-    print("Para enviar uma mensagem você precisa escolher um usuário")
-    for user in users_database:
-        print(f"{user.login}\n")
+def sendMessage():
+    print("Para enviar uma mensagem você precisa escolher um usuário\n")
 
-    login = input("Escreva o nome do usuário que deseja enviar uma mensagem: ")
+    for person in users_database:
+        print(f"{person.login}")
 
-    for user in users_database:
-        if user.login == login:
-            return user
+    selectedUsername = input("Escreva o nome do usuário que deseja enviar uma mensagem: ")
+
+    userFoundedOnDB = next((user for user in users_database if user.login == selectedUsername), None)
+
+    if userFoundedOnDB:
+        print(f'Usuário "{userFoundedOnDB.login}" encontrado')
+    else:
+        print(f'Usuário "{selectedUsername}" não encontrado!')
 
 
 '''
@@ -113,30 +122,32 @@ def showUsersData():
     if back == 0:
         server_menu()
 
+def chooseOption():
+    if loggedUser:
+        option = server_menu()
+
+        if option == "1":
+            sendMessage()
+        elif option == "2":
+            showUsersData()
+        elif option == "3":
+            return "exit"
+        else:
+            print("Opção inválida. Tente novamente.")
+    else:
+        option = entry_menu()
+
+        if option == "1":
+            register_user()
+        elif option == "2":
+            login()
+        elif option == "3":
+            return "exit"
+        else:
+            print("Opção inválida. Tente novamente.")
 
 # Menu principal
 while True:
-    option = entry_menu()
-    if option == "1":
-        register_user()
-    elif option == "2":
-        login()
-    elif option == "3":
+    option = chooseOption()
+    if option == "exit":
         break
-    else:
-        print("Opção inválida. Tente novamente.")
-
-
-'''
-if server == True:
-            option = server_menu()
-            if option == "1":
-                choose_user()
-            elif option == "2":
-                showUsersData()
-            elif option == "3":
-                entry_menu()
-            else:
-                print("Opção inválida. Tente novamente.")
-'''
-
