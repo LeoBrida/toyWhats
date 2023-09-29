@@ -2,16 +2,19 @@ from encryption.encrypt import *
 from authentication.auth import *
 from user_managment import User
 
+# Secret_key do servidor
 
-# Dicionário para armazenar os dados de usuário (simulado em memória)
+
+# ---------------------Dados de usuários (simulado em memória) ----------------
 users_database = []
 
+# ------------------------- Registro do usuário -------------------------------
 def register_user():
     login = input("Digite seu usuário: ")
     phone_number = input("Digite seu número de celular: ")
     password = input("Digite sua senha: ")
     salt = generate_salt()
-    password_scrypt = derive_key_scrypt(salt, password)
+    password_scrypt = derive_key_scrypt(salt, password) # senha hasheada
 
     user = User(login, phone_number, password_scrypt, salt)
 
@@ -24,21 +27,34 @@ def register_user():
             users_database.append(user)
             print("Usuário cadastrado com sucesso!")
 
-
+# ------------------------- Login ------------------------------------
 def login():
     login = input("Digite seu login: ")
     password = input("Digite sua senha: ")
 
-    for u in users_database:
-        if u.login == login:
-            user = u
-        if pbkdf2_sha256.verify(password, usuario["senha_hash"]): # essa é uma função de uma outra lib, eu acho que temos que bater a senha com o scrypt
-            secret = generate_2fa_code(user.secret_key)
-            print(f"Bem-vindo, {usuario['nome']}!")
+    for person in users_database:
+        if person.login == login:
+            user = person
+
+            # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
+            salt_received_password = generate_salt()
+            scrypt_received_password = derive_key_scrypt(salt_received_password, password)
+            if user.password_scrypt == scrypt_received_password:
+                
+                # Segundo fator de autenticação, usar o TOTP
+                #secret_key -> getotp -> retorna numero (user e servidor)
+                #comparar numero gerado pelo usuario e pelo servidor, se for o mesmo, ta autenticado
+                user_secret = generate_2fa_code(user.secret_key)
+                server_secret = pass
+                
+                if user_secret == server_secret:
+                    print(f"Bem-vindo, {user.login}!")
+                else:
+                    print("Autenticação falhou!")
+            else:
+                print("Senha incorreta.")
         else:
-            print("Senha incorreta.")
-    else:
-        print("Usuário não encontrado.")
+            print("Usuário não encontrado.")
 
 def list_users_data():
     print("Login\t")
@@ -56,14 +72,17 @@ def list_users_data():
     if voltar == 0:
         menu()
 
+# ---------------------- Escolher o usuário --------------------------
 def choose_user():
     print("Para enviar uma mensagem você precisa escolher um usuário")
     for person in users_database:
         print(f"{person.login}\n")
-    login = input("Escreva o nome do usuário para enviar uma mensagem:")
+
+    login = input("Escreva o nome do usuário que deseja enviar uma mensagem:")
 
     for user in users_database:
-        return user #corrigir
+        if user.login == login:
+            return user
 
 def menu():
     print("\n1. Cadastro")
