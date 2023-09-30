@@ -25,7 +25,7 @@ def generate_aes_keys(salt, password):
 def encrypt_message(message, key, iv):
     cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
     ciphertext, tag = cipher.encrypt_and_digest(message.encode('utf-8'))
-    return ciphertext, cipher.nonce, tag
+    return ciphertext, tag #cipher.nonce
 
 # Função para decifrar uma mensagem usando AES-GCM
 def decrypt_message(ciphertext, key, iv, tag):

@@ -1,7 +1,7 @@
 from encryption.encrypt import *
 from authentication.auth import *
-from server.objects.object_user import User
-from server.objects.object_message import Message
+from objects.object_user import User
+from objects.object_message import Message
 
 # --------------------- Secret_key do servidor --------------------------------
 
@@ -88,8 +88,8 @@ def sendMessage():
 # ---------------------- Enviar mensagem ----------------------------
 def sendMessageToUser(selectedUser: User):
         text = input('Mensagem: ')
-        msg = encrypt_message(text, None, None) # tem que gerar key e iv
-        messageToSend = Message(msg.ciphertext, loggedUser.login, selectedUser)
+        ciphertext, tag = encrypt_message(text, None, None) # tem que gerar key e iv para colocar aqui
+        messageToSend = Message(ciphertext, loggedUser.login, selectedUser, tag)
         
         selectedUser.addReceivedMessage(messageToSend)
         loggedUser.addSendedMessage(messageToSend)
