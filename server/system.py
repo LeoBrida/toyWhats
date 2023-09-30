@@ -73,6 +73,15 @@ def login():
 
 # ---------------------- Escolher o usuário --------------------------
 def sendMessage():
+    def sendMessageToUser(selectedUser: User):
+        messageId = generateID()
+    	text = input('Mensagem: ')
+    	messageToSend = Message(text = text, from = loggedUser.login, id = messageId)
+        selectedUser.addReceivedMessage(messageToSend)
+	
+        messageSended = Message(text = text, to = selectedUser.login, id = id)
+        loggedUser.addSendedMessage(messageToSend)
+
     print("Para enviar uma mensagem você precisa escolher um usuário\n")
 
     for person in users_database:
@@ -83,7 +92,8 @@ def sendMessage():
     userFoundedOnDB = next((user for user in users_database if user.login == selectedUsername), None)
 
     if userFoundedOnDB:
-        print(f'Usuário "{userFoundedOnDB.login}" encontrado')
+        print(f'Usuário "{userFoundedOnDB.login}" encontrado\n')
+        sendMessageToUser(userFoundedOnDB)
     else:
         print(f'Usuário "{selectedUsername}" não encontrado!')
 
