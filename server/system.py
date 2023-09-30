@@ -1,14 +1,13 @@
 from encryption.encrypt import *
 from authentication.auth import *
-from toyWhats.server.objects.object_user import User
+from server.objects.object_user import User
+from server.objects.object_message import Message
 
-# Secret_key do servidor
+# --------------------- Secret_key do servidor --------------------------------
 
 
-# ---------------------Dados de usuários (simulado em memória) ----------------
-#global users_database # não precisa definir como global por que ela nao ta dentro de nenhuma função
+# --------------------- Dados de usuários (simulado em memória) ----------------
 users_database = []
-loggedUser = None
 
 def setLoggedUser(user):
     loggedUser = user
@@ -45,12 +44,12 @@ def login():
     password = input("Digite sua senha: ")
 
     for c in range(len(users_database)):
-        person = users_database[c]
-        if person.login == login:
-            userToLogin = person
+        user = users_database[c]
+        if user.login == login:
+            userToLogin = user
 
             # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-            salt_received_password = userToLogin.salt # salt_received_password = generate_salt()   
+            salt_received_password = userToLogin.salt
             scrypt_received_password = derive_key_scrypt(salt_received_password, password)
 
             if userToLogin.password == scrypt_received_password:
@@ -59,10 +58,9 @@ def login():
                 server_secret = generate_2fa_code(userToLogin.secret_key)
 
                 if user_secret == server_secret:
-                    print(f"\nBem-vindo, {userToLogin.login}!")
                     global loggedUser
                     loggedUser = userToLogin
-                    #return # a partir daqui ele deve ir para o server_menu()
+                    print(f"\nBem-vindo, {loggedUser.login}!")
                 else:
                     print("\nAutenticação falhou!")
             else:
@@ -73,23 +71,13 @@ def login():
 
 # ---------------------- Escolher o usuário --------------------------
 def sendMessage():
-    def sendMessageToUser(selectedUser: User):
-        messageId = generateID()
-    	text = input('Mensagem: ')
-    	messageToSend = Message(text = text, from = loggedUser.login, id = messageId)
-        selectedUser.addReceivedMessage(messageToSend)
-	
-        messageSended = Message(text = text, to = selectedUser.login, id = id)
-        loggedUser.addSendedMessage(messageToSend)
-
     print("Para enviar uma mensagem você precisa escolher um usuário\n")
-
-    for person in users_database:
-        print(f"{person.login}")
+    for user in users_database:
+        print(f"{user.login}")
 
     selectedUsername = input("Escreva o nome do usuário que deseja enviar uma mensagem: ")
-
     userFoundedOnDB = next((user for user in users_database if user.login == selectedUsername), None)
+
 
     if userFoundedOnDB:
         print(f'Usuário "{userFoundedOnDB.login}" encontrado\n')
@@ -97,11 +85,20 @@ def sendMessage():
     else:
         print(f'Usuário "{selectedUsername}" não encontrado!')
 
+# ---------------------- Enviar mensagem ----------------------------
+def sendMessageToUser(selectedUser: User):
+        text = input('Mensagem: ')
+        msg = encrypt_message(text, None, None) # tem que gerar key e iv
+        messageToSend = Message(msg.ciphertext, loggedUser.login, selectedUser)
+        
+        selectedUser.addReceivedMessage(messageToSend)
+        loggedUser.addSendedMessage(messageToSend)
 
-'''
-Percebi que a gente precisa de um menu geral e um menu para o servidor.
-E o menu do servidor só pode ser acessado depois do login
-'''
+        print("Mensagem enviada")
+
+# ---------------------- Receber mensagem ----------------------------
+def receiveMessageFromUser():
+    pass
 # ---------------------- Menu de entrada --------------------------
 
 def entry_menu():

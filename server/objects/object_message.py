@@ -1,4 +1,5 @@
 class Message:
-    def __init__(self, text, type):
+    def __init__(self, text, sender, receiver):
         self.text = text
-        self.type = type
+        self.receiver = receiver
+        self.sender = sender

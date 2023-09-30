@@ -9,13 +9,15 @@ class User():
         self.password = password
         self.salt = salt
         self.secret_key = generate_2fa_secret()
+        self.received_messages = []
+        self.sended_messages = []
         self.contacts = []
 
-    def send_message():
-        pass
+    def addSendedMessage(self, message: Message):
+        self.sended_messages.append(message)
 
-    def receive_message():
-        pass
+    def addReceivedMessage(self, message: Message):
+        self.received_messages.append(message)
 
     def addContact(self, contactUser: Contact):
         self.contacts.push(contactUser)
