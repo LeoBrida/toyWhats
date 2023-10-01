@@ -4,7 +4,7 @@ from objects.object_user import User, Message
 from messeger.messeger import *
 
 # --------------------- Secret_key do servidor --------------------------------
-
+serverSecretKey = generate_2fa_secret()
 
 # --------------------- Dados de usuários (simulado em memória) ----------------
 users_database = []
@@ -52,10 +52,11 @@ def login():
 
         if userFoundedOnDB.password == scrypt_received_password:
             # Segundo fator de autenticação
-            user_secret = generate_2fa_code(userFoundedOnDB.secret_key)
-            server_secret = generate_2fa_code(userFoundedOnDB.secret_key)
+            totp, current_code = generate_2fa_code(userFoundedOnDB.secret_key)
+            print(f"Código TOTP atual: {current_code}")
+            entered_code = input("Digite o código TOTP: ")
 
-            if user_secret == server_secret:
+            if totp.verify(entered_code):
                 global loggedUser
                 loggedUser = userFoundedOnDB
                 print(f"\nBem-vindo, {loggedUser.login}!\n")

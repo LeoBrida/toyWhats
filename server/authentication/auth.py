@@ -9,4 +9,4 @@ def generate_2fa_secret():
 # Função para gerar um código TOTP de autenticação de dois fatores
 def generate_2fa_code(secret):
     totp = TOTP(secret)
-    return totp.now()
+    return totp, totp.now()
