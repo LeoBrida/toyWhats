@@ -12,7 +12,7 @@ loggedUser = None
 
 # ------------------------- Registro do usuário -------------------------------
 def register_user():
-    login = input("Digite seu usuário: ")
+    login = input("\nDigite seu usuário: ")
     phone_number = input("Digite seu número de celular: ")
     password = input("Digite sua senha: ")
     salt = generate_salt()
@@ -25,7 +25,7 @@ def register_user():
 
     def addUserToDB(userToAdd: User):
         users_database.append(userToAdd)
-        print("Usuário cadastrado com sucesso!")
+        print("\nUsuário cadastrado com sucesso!")
 
     if len(users_database) == 0:
         addUserToDB(userToAdd)
@@ -38,7 +38,7 @@ def register_user():
 
 # ------------------------- Login ------------------------------------
 def login():
-    login = input("Digite seu login: ")
+    login = input("\nDigite seu login: ")
     password = input("Digite sua senha: ")
 
     userFoundedOnDB = next((user for user in users_database if user.login == login), None)
@@ -70,26 +70,14 @@ def sendMessage():
     for user in users_database:
         print(f"{user.login}")
 
-    selectedUsername = input("Escreva o nome do usuário que deseja enviar uma mensagem: ")
+    selectedUsername = input("\nEscreva o nome do usuário que deseja enviar uma mensagem: ")
     userFoundedOnDB = next((user for user in users_database if user.login == selectedUsername), None)
-
 
     if userFoundedOnDB:
         print(f'Usuário "{userFoundedOnDB.login}" encontrado\n')
         sendMessageToUser(userFoundedOnDB, loggedUser)
     else:
         print(f'Usuário "{selectedUsername}" não encontrado!')
-
-# ---------------------- Enviar mensagem ----------------------------
-# def sendMessageToUser(selectedUser: User):
-#         text = input('Mensagem: ')
-#         ciphertext, tag = encrypt_message(text, None, None) # tem que gerar key e iv para colocar aqui
-#         messageToSend = Message(ciphertext, loggedUser.login, selectedUser, tag)
-        
-#         selectedUser.addReceivedMessage(messageToSend)
-#         loggedUser.addSendedMessage(messageToSend)
-
-#         print("Mensagem enviada")
 
 # ---------------------- Receber mensagem ----------------------------
 def receiveMessageFromUser():
@@ -122,8 +110,11 @@ def entry_menu():
 # ---------------------- Menu do servidor --------------------------
 def server_menu():
     print("1. Enviar mensagem")
-    print("2. Comando especial")
-    print("3. Sair")
+    print("2. Ler mensagens recebidas")
+    print("3. Ler mensagens enviadas")
+    print("4. Sair")
+    print("5. Mostrar dados dos usuários")
+
     option = input("Escolha uma opção: ")
     return option
 
@@ -135,10 +126,8 @@ def showUsersData():
         print("password: " + str(user.password))
         print("salt: " + str(user.salt))
         print("secret_key: " + user.secret_key)
+        print("\n")
 
-    back = input("\nDigite 0 (zero) para voltar: ")
-    if back == 0:
-        server_menu()
 
 def chooseOption():
     if loggedUser:
@@ -147,9 +136,13 @@ def chooseOption():
         if option == "1":
             sendMessage()
         elif option == "2":
-            showUsersData()
+            readReceivedMessages(loggedUser)
         elif option == "3":
+            readSendedMessages(loggedUser)
+        elif option == "4":
             return "exit"
+        elif option == "5":
+            showUsersData()
         else:
             print("Opção inválida. Tente novamente.")
     else:

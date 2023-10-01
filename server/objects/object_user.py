@@ -2,12 +2,11 @@ from authentication.auth import *
 from encryption.encrypt import *
 
 class Message():
-    def __init__(self, text, sender, receiver, tag):
+    def __init__(self, text, sender, receiver):
         self.text = text
         self.receiver = receiver
         self.sender = sender
-        self.tag = tag
-
+        # self.tag = tag
 
 class User():
     def __init__(self, login, phone, password, salt):
