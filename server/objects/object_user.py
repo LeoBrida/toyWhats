@@ -1,6 +1,13 @@
 from authentication.auth import *
 from encryption.encrypt import *
-from object_contact import *
+
+class Message():
+    def __init__(self, text, sender, receiver, tag):
+        self.text = text
+        self.receiver = receiver
+        self.sender = sender
+        self.tag = tag
+
 
 class User():
     def __init__(self, login, phone, password, salt):
@@ -11,13 +18,9 @@ class User():
         self.secret_key = generate_2fa_secret()
         self.received_messages = []
         self.sended_messages = []
-        self.contacts = []
 
     def addSendedMessage(self, message: Message):
         self.sended_messages.append(message)
 
     def addReceivedMessage(self, message: Message):
         self.received_messages.append(message)
-
-    def addContact(self, contactUser: Contact):
-        self.contacts.push(contactUser)

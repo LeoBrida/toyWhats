@@ -1,16 +1,14 @@
 from encryption.encrypt import *
 from authentication.auth import *
-from objects.object_user import User
-from objects.object_message import Message
+from objects.object_user import User, Message
+from messeger.messeger import *
 
 # --------------------- Secret_key do servidor --------------------------------
 
 
 # --------------------- Dados de usuários (simulado em memória) ----------------
 users_database = []
-
-def setLoggedUser(user):
-    loggedUser = user
+loggedUser = None
 
 # ------------------------- Registro do usuário -------------------------------
 def register_user():
@@ -43,31 +41,28 @@ def login():
     login = input("Digite seu login: ")
     password = input("Digite sua senha: ")
 
-    for c in range(len(users_database)):
-        user = users_database[c]
-        if user.login == login:
-            userToLogin = user
+    userFoundedOnDB = next((user for user in users_database if user.login == login), None)
 
-            # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-            salt_received_password = userToLogin.salt
-            scrypt_received_password = derive_key_scrypt(salt_received_password, password)
+    if userFoundedOnDB == None:
+        print("\nUsuário não encontrado.")
+    else:
+        # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
+        salt_received_password = userFoundedOnDB.salt
+        scrypt_received_password = derive_key_scrypt(salt_received_password, password)
 
-            if userToLogin.password == scrypt_received_password:
-                # Segundo fator de autenticação
-                user_secret = generate_2fa_code(userToLogin.secret_key)
-                server_secret = generate_2fa_code(userToLogin.secret_key)
+        if userFoundedOnDB.password == scrypt_received_password:
+            # Segundo fator de autenticação
+            user_secret = generate_2fa_code(userFoundedOnDB.secret_key)
+            server_secret = generate_2fa_code(userFoundedOnDB.secret_key)
 
-                if user_secret == server_secret:
-                    global loggedUser
-                    loggedUser = userToLogin
-                    print(f"\nBem-vindo, {loggedUser.login}!")
-                else:
-                    print("\nAutenticação falhou!")
+            if user_secret == server_secret:
+                global loggedUser
+                loggedUser = userFoundedOnDB
+                print(f"\nBem-vindo, {loggedUser.login}!\n")
             else:
-                print("\nSenha incorreta.")
-
-        else: #person == None and c == len(users_database)
-            print("\nUsuário não encontrado.")
+                print("\nAutenticação falhou!")
+        else:
+            print("\nSenha incorreta.")
 
 # ---------------------- Escolher o usuário --------------------------
 def sendMessage():
@@ -81,20 +76,20 @@ def sendMessage():
 
     if userFoundedOnDB:
         print(f'Usuário "{userFoundedOnDB.login}" encontrado\n')
-        sendMessageToUser(userFoundedOnDB)
+        sendMessageToUser(userFoundedOnDB, loggedUser)
     else:
         print(f'Usuário "{selectedUsername}" não encontrado!')
 
 # ---------------------- Enviar mensagem ----------------------------
-def sendMessageToUser(selectedUser: User):
-        text = input('Mensagem: ')
-        ciphertext, tag = encrypt_message(text, None, None) # tem que gerar key e iv para colocar aqui
-        messageToSend = Message(ciphertext, loggedUser.login, selectedUser, tag)
+# def sendMessageToUser(selectedUser: User):
+#         text = input('Mensagem: ')
+#         ciphertext, tag = encrypt_message(text, None, None) # tem que gerar key e iv para colocar aqui
+#         messageToSend = Message(ciphertext, loggedUser.login, selectedUser, tag)
         
-        selectedUser.addReceivedMessage(messageToSend)
-        loggedUser.addSendedMessage(messageToSend)
+#         selectedUser.addReceivedMessage(messageToSend)
+#         loggedUser.addSendedMessage(messageToSend)
 
-        print("Mensagem enviada")
+#         print("Mensagem enviada")
 
 # ---------------------- Receber mensagem ----------------------------
 def receiveMessageFromUser():
