@@ -14,7 +14,7 @@ def sendMessageToUser(selectedUser: User, loggedUser: User):
 
 def readSendedMessages(selectedUser: User):
         if len(selectedUser.sended_messages) == 0:
-                print("\nNenhuma mensagem recebida\n")
+                print("\nNenhuma mensagem enviada!\n")
         else:
                 for message in selectedUser.sended_messages:
                         print("\n")
@@ -24,9 +24,9 @@ def readSendedMessages(selectedUser: User):
 
 def readReceivedMessages(selectedUser: User):
         if len(selectedUser.received_messages) == 0:
-                print("\nNenhuma mensagem recebida\n")
+                print("\nNenhuma mensagem recebida!\n")
         else:
-                for message in selectedUser.sended_messages:
+                for message in selectedUser.received_messages:
                         print("\n")
                         print(f"De {message.sender}:")
                         print('"' + message.text + '"')
