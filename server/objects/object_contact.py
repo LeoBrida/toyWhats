@@ -1,6 +1,6 @@
 from object_message import Message
 
-class Contact:
+class Contact():
     def __init__(self, username):
         self.username = username
         self.messages = []

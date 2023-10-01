@@ -89,16 +89,32 @@ def sendMessage():
 def sendMessageToUser(selectedUser: User):
         text = input('Mensagem: ')
         ciphertext, tag = encrypt_message(text, None, None) # tem que gerar key e iv para colocar aqui
-        messageToSend = Message(ciphertext, loggedUser.login, selectedUser, tag)
+        messageToSend = Message(ciphertext, loggedUser, selectedUser, tag)
         
         selectedUser.addReceivedMessage(messageToSend)
         loggedUser.addSendedMessage(messageToSend)
 
-        print("Mensagem enviada")
+        return print("Mensagem enviada")
 
 # ---------------------- Receber mensagem ----------------------------
 def receiveMessageFromUser():
-    pass
+    #mostrar mensagens
+    i = 0
+    dic = {}
+    for msg in loggedUser.received_messages:
+        i += 1
+        dic[i] = msg
+        print(f"{i}. {msg}")
+    
+    selectedMessage = input("Selecione o numero da mensagem que quer ler: ")
+    messageToRead = dic[selectedMessage]
+
+    #não sei se gera a chave e o iv aqui desse user
+
+    messageDecrypted = decrypt_message(messageToRead.ciphertext, None, None, messageToRead.tag) # tem que inserir chave  e iv nos Nones
+
+    return print(f"Mensagem desencriptada: {messageDecrypted}")
+
 # ---------------------- Menu de entrada --------------------------
 
 def entry_menu():
