@@ -10,10 +10,6 @@ serverSecretKey = generate_2fa_secret()
 users_database = []
 loggedUser = None
 
-def setLoggedUser(user: User):
-    global loggedUser
-    loggedUser = user
-
 # ------------------------- Registro do usuário -------------------------------
 def register_user():
     login = input("\nDigite seu usuário: ")
@@ -57,12 +53,12 @@ def login():
         if userFoundedOnDB.password == scrypt_received_password:
             # Segundo fator de autenticação
             totp, current_code = generate_2fa_code(userFoundedOnDB.secret_key)
-            print(f"\n  Digite o código TOTP para realizar a autenticação: {current_code}\n")
-            entered_code = input("Código TOTP: ")
+            print(f"Código TOTP atual: {current_code}")
+            entered_code = input("Digite o código TOTP: ")
 
             if totp.verify(entered_code):
                 global loggedUser
-                setLoggedUser(userFoundedOnDB)
+                loggedUser = userFoundedOnDB
                 print(f"\nBem-vindo, {loggedUser.login}!\n")
             else:
                 print("\nAutenticação falhou!")
@@ -117,9 +113,8 @@ def server_menu():
     print("1. Enviar mensagem")
     print("2. Ler mensagens recebidas")
     print("3. Ler mensagens enviadas")
-    print("4. Logout")
-    print("5. Sair")
-    print("6. Mostrar dados dos usuários")
+    print("4. Sair")
+    print("5. Mostrar dados dos usuários")
 
     option = input("Escolha uma opção: ")
     return option
@@ -132,7 +127,6 @@ def showUsersData():
         print("password: " + str(user.password))
         print("salt: " + str(user.salt))
         print("secret_key: " + user.secret_key)
-        print("received messages: " + str(len(user.received_messages)))
         print("\n")
 
 
@@ -147,10 +141,8 @@ def chooseOption():
         elif option == "3":
             readSendedMessages(loggedUser)
         elif option == "4":
-            setLoggedUser(None)
-        elif option == "5":
             return "exit"
-        elif option == "6":
+        elif option == "5":
             showUsersData()
         else:
             print("Opção inválida. Tente novamente.")
