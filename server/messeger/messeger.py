@@ -3,12 +3,13 @@ from encryption.encrypt import *
 
 def sendMessageToUser(selectedUser: User, loggedUser: User):
         text = input('Mensagem: ')
-        key, iv = generate_aes_keys(loggedUser.salt, loggedUser.password)
        
         messageSended = Message(text, loggedUser.login, selectedUser.login)
         loggedUser.addSendedMessage(messageSended)
 
+        key, iv = generate_aes_keys(loggedUser.salt, loggedUser.password)
         ciphertext, tag, nonce = encrypt_message(text, key, iv)
+
         messageToSend = Message(ciphertext, loggedUser.login,selectedUser.login, tag)
         selectedUser.addReceivedMessage(messageToSend)
         
@@ -25,17 +26,32 @@ def readSendedMessages(selectedUser: User):
                         print('"' + message.text + '"')
                         print("\n")
 
-def readReceivedMessages(selectedUser: User):
-        if len(selectedUser.received_messages) == 0:
+def readReceivedMessages(loggedUser: User, receiver: User):
+        if len(loggedUser.received_messages) == 0:
                 print("\nNenhuma mensagem recebida\n")
+
         else:
-                for message in selectedUser.received_messages:
+                for index, message in enumerate(loggedUser.received_messages):
                         print("\n")
                         print(f"De {message.sender}:")
                         print('"' + str(message.text) + '"')
+                        if message.text is not str:
+                                print(f"\nIndex da mensagem: {index}")
                         print("\n")
 
-def decryptReceivedMessage(message: Message, iv, user: User):
+        askDecryptMessage = None
+
+        if len(loggedUser.received_messages) != 0:
+                askDecryptMessage = input('\nDeseja descriptografar alguma mensagem [S | N]:').upper()
+
+        if askDecryptMessage == "S":
+                messageIndex = input('\nDigite o index da mensagem que deseja descriptografar: ')
+                messageToDecrypt = loggedUser.received_messages[int(messageIndex)]
+                decryptedMessage = decryptReceivedMessage(messageToDecrypt, loggedUser)
+                
+                print(f"De {messageToDecrypt.sender}:")
+                print('"' + str(decryptedMessage) + '"')
+
+def decryptReceivedMessage(message: Message, user: User):
         key, iv = generate_aes_keys(user.salt, user.password)
         return decrypt_message(message.text, key, iv, message.tag)
-        

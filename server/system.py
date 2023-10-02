@@ -48,8 +48,7 @@ def login():
         print("\nUsuário não encontrado.")
     else:
         # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-        salt_received_password = userFoundedOnDB.salt
-        scrypt_received_password = derive_key_scrypt(salt_received_password, password)
+        scrypt_received_password = derive_key_scrypt(userFoundedOnDB.salt, password)
 
         if userFoundedOnDB.password == scrypt_received_password:
             # Segundo fator de autenticação
