@@ -2,9 +2,12 @@ from encryption.encrypt import *
 from authentication.auth import *
 from objects.object_user import User, Message
 from messeger.messeger import *
+import json
+
 
 # --------------------- Dados de usuários (simulado em memória) ----------------
 users_database = []
+users_persistence = []
 loggedUser = None
 
 def setLoggedUser(user: User):
@@ -18,6 +21,15 @@ def register_user():
     password = input("Digite sua senha: ")
     salt = generate_salt()
     password_scrypt = derive_key_scrypt(salt, password) # senha hasheada
+    global salt_user
+    salt_user = salt
+
+    user = {'Login': login, 'Phone': phone_number, 'PasswordScript': str(password_scrypt), 'Salt': str(salt)}
+    users_persistence.append(user)
+    file = 'usersDataFile.json'
+    loadOnFile = open(file, 'w')
+    json.dump(users_persistence, loadOnFile)
+    loadOnFile.close()
 
     userToAdd = User(login, phone_number, password_scrypt, salt)
 
@@ -42,15 +54,27 @@ def login():
     login = input("\nDigite seu login: ")
     password = input("Digite sua senha: ")
 
-    userFoundedOnDB = next((user for user in users_database if user.login == login), None)
+    #userFoundedOnDB = next((user for user in users_database if user.login == login), None)
+    usersReg = open('usersDataFile.json', 'r')
+    data = json.load(usersReg)
+    userRegistered = next((user for user in data if user["Login"] == login), None)
+    usersReg.close()
 
-    if userFoundedOnDB == None:
+    '''if userFoundedOnDB == None:
+        print("\nUsuário não encontrado.")'''
+    if userRegistered == None:
         print("\nUsuário não encontrado.")
     else:
         # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-        scrypt_received_password = derive_key_scrypt(userFoundedOnDB.salt, password)
+        scrypt_received_password = derive_key_scrypt(userRegistered["Salt"], password)
 
-        if userFoundedOnDB.password == scrypt_received_password:
+        print(userRegistered["Salt"])
+        #print(salt_user)
+
+        print(scrypt_received_password)
+        print(userRegistered["PasswordScript"] )
+
+        if userRegistered["PasswordScript"] == str(scrypt_received_password):
             # Segundo fator de autenticação
             totp, current_code = generate_2fa_code(userFoundedOnDB.secret_key)
             print(f"\n  Digite o código TOTP para realizar a autenticação: {current_code}\n")
