@@ -3,12 +3,15 @@ from encryption.encrypt import *
 
 def sendMessageToUser(selectedUser: User, loggedUser: User):
         text = input('Mensagem: ')
-        # msg = encrypt_message(text, None, None) # tem que gerar key e iv
-        # messageToSend = Message(msg.ciphertext, loggedUser.login, selectedUser)
-        messageToSend = Message(text, loggedUser.login, selectedUser.login)
-        
+        key, iv = generate_aes_keys(loggedUser.salt, loggedUser.password)
+       
+        messageSended = Message(text, loggedUser.login, selectedUser.login)
+        loggedUser.addSendedMessage(messageSended)
+
+        ciphertext, tag, nonce = encrypt_message(text, key, iv)
+        messageToSend = Message(ciphertext, loggedUser.login,selectedUser.login, tag)
         selectedUser.addReceivedMessage(messageToSend)
-        loggedUser.addSendedMessage(messageToSend)
+        
 
         print("\nMensagem enviada\n")
 
@@ -26,8 +29,13 @@ def readReceivedMessages(selectedUser: User):
         if len(selectedUser.received_messages) == 0:
                 print("\nNenhuma mensagem recebida\n")
         else:
-                for message in selectedUser.sended_messages:
+                for message in selectedUser.received_messages:
                         print("\n")
                         print(f"De {message.sender}:")
-                        print('"' + message.text + '"')
+                        print('"' + str(message.text) + '"')
                         print("\n")
+
+def decryptReceivedMessage(message: Message, iv, user: User):
+        key, iv = generate_aes_keys(user.salt, user.password)
+        return decrypt_message(message.text, key, iv, message.tag)
+        

@@ -3,9 +3,6 @@ from authentication.auth import *
 from objects.object_user import User, Message
 from messeger.messeger import *
 
-# --------------------- Secret_key do servidor --------------------------------
-serverSecretKey = generate_2fa_secret()
-
 # --------------------- Dados de usuários (simulado em memória) ----------------
 users_database = []
 loggedUser = None
