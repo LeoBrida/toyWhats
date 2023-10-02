@@ -149,7 +149,7 @@ def chooseOption():
         elif option == "6":
             showUsersData()
         else:
-            print("Opção inválida. Tente novamente.")
+            print("\nOpção inválida. Tente novamente.")
     else:
         option = entry_menu()
 
@@ -160,7 +160,7 @@ def chooseOption():
         elif option == "3":
             return "exit"
         else:
-            print("Opção inválida. Tente novamente.")
+            print("\nOpção inválida. Tente novamente.")
 
 # Menu principal
 while True:
