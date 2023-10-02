@@ -18,8 +18,12 @@ def derive_key_pbkdf2(salt, password):
 # Função para criar um par de chaves AES (chave de criptografia e IV) a partir da senha e do salt
 def generate_aes_keys(salt, password):
     key = derive_key_pbkdf2(salt, password)
-    iv = os.urandom(16)
-    return key, iv
+    return key
+
+def generate_aes_ivs(salt):
+    n_random = os.urandom(16)
+    iv = derive_key_pbkdf2(salt, n_random)
+    return iv
 
 # Função para cifrar uma mensagem usando AES-GCM
 def encrypt_message(message, key, iv):

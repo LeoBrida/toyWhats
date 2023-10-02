@@ -7,10 +7,11 @@ def sendMessageToUser(selectedUser: User, loggedUser: User):
         messageSended = Message(text, loggedUser.login, selectedUser.login)
         loggedUser.addSendedMessage(messageSended)
 
-        key, iv = generate_aes_keys(loggedUser.salt, loggedUser.password)
+        key = generate_aes_keys(loggedUser.salt, loggedUser.password)
+        iv = generate_aes_ivs(loggedUser.salt)
         ciphertext, tag, nonce = encrypt_message(text, key, iv)
 
-        messageToSend = Message(ciphertext, loggedUser.login,selectedUser.login, tag)
+        messageToSend = Message(ciphertext, loggedUser.login,selectedUser.login, tag, nonce)
         selectedUser.addReceivedMessage(messageToSend)
         
 
@@ -26,7 +27,7 @@ def readSendedMessages(selectedUser: User):
                         print('"' + message.text + '"')
                         print("\n")
 
-def readReceivedMessages(loggedUser: User, receiver: User):
+def readReceivedMessages(loggedUser: User): #receiver: User
         if len(loggedUser.received_messages) == 0:
                 print("\nNenhuma mensagem recebida\n")
 
@@ -52,6 +53,7 @@ def readReceivedMessages(loggedUser: User, receiver: User):
                 print(f"De {messageToDecrypt.sender}:")
                 print('"' + str(decryptedMessage) + '"')
 
-def decryptReceivedMessage(message: Message, user: User):
-        key, iv = generate_aes_keys(user.salt, user.password)
+def decryptReceivedMessage(message: Message, user: User): #aqui não rola de ser user pq ele ta usando a o loggeduser e o loggedUser que le a mensagem não foi o mesmo que enviou
+        key = generate_aes_keys(user.salt, user.password) 
+        iv = message.nonce
         return decrypt_message(message.text, key, iv, message.tag)
