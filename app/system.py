@@ -48,10 +48,12 @@ def login():
         print("\nUsuário não encontrado.")
     else:
         # Hasheando a senha recebida com scrypt e comparando com a que tem guardada
-        scrypt_received_password = derive_key_scrypt(userFoundedOnDB.salt, password)
 
+        scrypt_received_password = derive_key_scrypt(userFoundedOnDB.salt, password)
         if userFoundedOnDB.password == scrypt_received_password:
+
             # Segundo fator de autenticação
+
             totp, current_code = generate_2fa_code(userFoundedOnDB.secret_key)
             print(f"\n  Digite o código TOTP para realizar a autenticação: {current_code}\n")
             entered_code = input("Código TOTP: ")
@@ -79,25 +81,6 @@ def sendMessage():
         sendMessageToUser(userFoundedOnDB, loggedUser)
     else:
         print(f'Usuário "{selectedUsername}" não encontrado!')
-
-# ---------------------- Receber mensagem ----------------------------
-def receiveMessageFromUser():
-    #mostrar mensagens
-    i = 0
-    dic = {}
-    for msg in loggedUser.received_messages:
-        i += 1
-        dic[i] = msg
-        print(f"{i}. {msg}")
-    
-    selectedMessage = input("Selecione o numero da mensagem que quer ler: ")
-    messageToRead = dic[selectedMessage]
-
-    #não sei se gera a chave e o iv aqui desse user
-
-    messageDecrypted = decrypt_message(messageToRead.ciphertext, None, None, messageToRead.tag) # tem que inserir chave  e iv nos Nones
-
-    return print(f"Mensagem desencriptada: {messageDecrypted}")
 
 # ---------------------- Menu de entrada --------------------------
 

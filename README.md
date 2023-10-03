@@ -7,13 +7,10 @@ Recursos necessários para a utilização e execução do sistema:
 
 ##### Pycryptodome
 - pip install pycryptodome
+- Caso os módulos não estiverem sendo importados, verificar o interpretador que está utilizado (caso haja mais de um)
 
 ##### PyOTP
 - pip install pyotp
 - link: https://pyauth.github.io/pyotp/#
 
-##### Hashlib
-- link: https://docs.python.org/pt-br/3.10/library/hashlib.html
 
-##### Hmac
-- link: https://docs.python.org/pt-br/3.10/library/hmac.html

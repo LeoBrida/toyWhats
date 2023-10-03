@@ -10,16 +10,17 @@ def generate_salt():
 
 # Função para derivar uma chave a partir da senha e do salt usando SCRYPT
 def derive_key_scrypt(salt, password):
-    return scrypt(password, salt, 32, N=2**14, r=8, p=1) # Revisar parâmetros para serem escolhidos
+    return scrypt(password, salt, 32, N=2**14, r=8, p=1)
 
 def derive_key_pbkdf2(salt, password):
-    return PBKDF2(password, salt, 16, 1000, None, SHA512) # Revisar parâmetros para serem escolhidos
+    return PBKDF2(password, salt, 16, 1000, None, SHA512)
 
 # Função para criar um par de chaves AES (chave de criptografia e IV) a partir da senha e do salt
 def generate_aes_keys(salt, password):
     key = derive_key_pbkdf2(salt, password)
     return key
 
+#Função para gerar iv
 def generate_aes_ivs(salt):
     n_random = os.urandom(16)
     iv = derive_key_pbkdf2(salt, n_random)
